@@ -6,6 +6,10 @@ public class EquipeCampo {
     private String nomeEquipe;
     private String baseOperacional;
 
+    public int getId() {
+        return id;
+    }
+
     public String getNomeEquipe() {
         return nomeEquipe;
     }
