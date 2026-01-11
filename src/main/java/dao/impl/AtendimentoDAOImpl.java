@@ -94,7 +94,8 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
             int idEquipe
     ) throws BusinessException {
 
-        Protocolo protocolo = buscarPorId(idProtocolo);
+        Protocolo protocolo = buscarPorId(String.valueOf(idProtocolo));
+
 
         if (protocolo.getStatus() != StatusProtocolo.ABERTO) {
             throw new BusinessException("Somente atendimentos ABERTOS podem ser agendados.");
