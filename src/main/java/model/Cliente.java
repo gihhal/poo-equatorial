@@ -5,10 +5,13 @@ public class Cliente extends Pessoa {
     private int id;
     private String endereco;
 
-    public Cliente(String nome, String cpf, String contato, String endereco) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.contato = contato;
+    public Cliente(
+            String nome,
+            String cpf,
+            String contato,
+            String endereco
+    ) {
+        super(nome, cpf, contato);
         this.endereco = endereco;
     }
 
