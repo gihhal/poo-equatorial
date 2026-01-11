@@ -1,6 +1,6 @@
 package model;
 
-public class Tecnico extends Pessoa {
+public class Tecnico extends Pessoa{
 
     private int id;
     private String especialidade;

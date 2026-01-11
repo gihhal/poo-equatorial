@@ -1,6 +1,6 @@
 package dao;
 
-import model.Tecnico;
+import model.Pessoa;
 import java.util.List;
 
 public interface TecnicoDAO {
