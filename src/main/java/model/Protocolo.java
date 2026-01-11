@@ -93,4 +93,18 @@ public class Protocolo {
     public void setEquipeId(String equipeId) {
         this.equipeId = equipeId;
     }
+
+    public void agendar(Date dataPrevista, EquipeCampo equipe) {
+        this.dataPrevista = dataPrevista;
+
+        if (equipe != null) {
+            this.equipeId = String.valueOf(equipe.getId());
+
+        }
+
+        //atualiza o status para AGENDADO se não estiver finalizado
+        if (this.status != StatusProtocolo.FINALIZADO) {
+            this.status = StatusProtocolo.AGENDADO;
+        }
+    }
 }

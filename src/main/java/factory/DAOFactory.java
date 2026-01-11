@@ -18,17 +18,18 @@ import dao.impl.ProtocoloDAOImpl;
 // dos contratos de Data Access Object (DAO)
 public class DAOFactory {
 
-    // SOLID: Single responsability
-    // uso de classes com responsabilidades específicas
-
     public static ClienteDAO getClienteDAO() {
         return new ClienteDAOImpl();
     }
+
     public static ProtocoloDAO getProtocoloDAO() {
         return new ProtocoloDAOImpl();
     }
+
     public static AtendimentoDAO getAtendimentoDAO() {
-        return new AtendimentoDAOImpl();
+        ProtocoloDAO protocoloDAO = getProtocoloDAO(); // injeta dependência
+        return new AtendimentoDAOImpl(protocoloDAO);
     }
 
 }
+

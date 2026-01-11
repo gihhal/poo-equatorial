@@ -2,7 +2,6 @@ package dao.impl;
 
 import dao.AtendimentoDAO;
 import dao.ProtocoloDAO;
-import factory.DAOFactory;
 import model.Atendimento;
 import model.EquipeCampo;
 import model.Protocolo;
@@ -10,13 +9,20 @@ import model.StatusProtocolo;
 import util.ConnectionManager;
 import util.exception.BusinessException;
 
-import java.net.BindException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AtendimentoDAOImpl implements AtendimentoDAO {
+
+    private final ProtocoloDAO protocoloDAO; // DAO de protocolos injetado
+
+    public AtendimentoDAOImpl(ProtocoloDAO protocoloDAO) {
+        this.protocoloDAO = protocoloDAO;
+    }
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
@@ -30,17 +36,16 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
         String sql = """
             INSERT INTO atendimento
             (id, agencia_id, tecnico_id, cliente_id, data_inicio, data_prazo, protocolo_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)        
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-
             ps.setString(1, atendimento.getId());
             ps.setString(2, atendimento.getAgenciaId());
             ps.setString(3, atendimento.getTecnicoId());
             ps.setString(4, atendimento.getClienteId());
-            ps.setDate(5, (Date) atendimento.getDataInicio());
-            ps.setDate(6, (Date) atendimento.getDataPrazo());
+            ps.setDate(5, new java.sql.Date(atendimento.getDataInicio().getTime()));
+            ps.setDate(6, new java.sql.Date(atendimento.getDataPrazo().getTime()));
             ps.setString(7, atendimento.getProtocoloId());
 
             ps.executeUpdate();
@@ -56,7 +61,6 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public Atendimento buscarPorId(String id) throws BusinessException {
         String sql = "SELECT * FROM atendimento WHERE id = ?";
-
         List<Atendimento> atendimentos = executarConsultaLista(sql, id);
 
         if (atendimentos.isEmpty()) {
@@ -75,7 +79,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public List<Atendimento> listarPorCliente(String idCliente) {
         String sql = "SELECT * FROM atendimento WHERE cliente_id = ?";
-        return executarConsultaLista(sql);
+        return executarConsultaLista(sql, idCliente);
     }
 
     @Override
@@ -94,8 +98,8 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
             int idEquipe
     ) throws BusinessException {
 
-        Protocolo protocolo = buscarPorId(String.valueOf(idProtocolo));
-
+        // Buscar protocolo (int -> String)
+        Protocolo protocolo = protocoloDAO.buscarPorId(String.valueOf(idProtocolo));
 
         if (protocolo.getStatus() != StatusProtocolo.ABERTO) {
             throw new BusinessException("Somente atendimentos ABERTOS podem ser agendados.");
@@ -105,12 +109,17 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
             throw new BusinessException("Data prevista inválida.");
         }
 
-        // Simulação de busca da equipe (pode virar DAO depois)
-        EquipeCampo equipe = new EquipeCampo(); // placeholder
-        // equipeDAO.buscarPorId(idEquipe);
+        // Criar equipe simulada (int -> String)
+        EquipeCampo equipe = new EquipeCampo();
+        equipe.setId(idEquipe);
 
-        protocolo.agendar(dataPrevista, equipe);
+        // Converter LocalDate -> java.util.Date
+        Date dataPrevistaDate = Date.from(dataPrevista.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+        // Chamar método agendar do Protocolo
+        protocolo.agendar(dataPrevistaDate, equipe);
+
+        // Atualizar protocolo no DAO
         protocoloDAO.atualizar(protocolo);
     }
 
@@ -120,7 +129,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
             StatusProtocolo novoStatus
     ) throws BusinessException {
 
-        Protocolo protocolo = buscarPorId(idProtocolo);
+        Protocolo protocolo = protocoloDAO.buscarPorId(String.valueOf(idProtocolo));
 
         if (novoStatus == null) {
             throw new BusinessException("Status inválido.");
@@ -135,8 +144,8 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     }
 
     @Override
-    public void atualizarEquipe(String idProtocolo, java.util.Date dataPrazo) {
-        throw new BindException("Erro ao atualizar equipe.");
+    public void atualizarEquipe(String idProtocolo, Date dataPrazo) throws BusinessException {
+        throw new BusinessException("Erro ao atualizar equipe.");
     }
 
     // =========================
@@ -169,16 +178,14 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Atendimento mapearResultadoParaAtendimento(ResultSet rs) throws SQLException {
-        Atendimento a = new Atendimento(
+        return new Atendimento(
                 rs.getString("id"),
                 rs.getString("agencia_id"),
                 rs.getString("tecnico_id"),
                 rs.getString("cliente_id"),
-                rs.getDate("data_abertura"),
+                rs.getDate("data_inicio"),
                 rs.getDate("data_prazo"),
                 rs.getString("protocolo_id")
         );
-
-        return p;
     }
 }
