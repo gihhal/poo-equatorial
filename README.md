@@ -6,12 +6,17 @@
 
 ## 📖 Apresentação
 
-O **Protocolo: Equatorial** é uma aplicação desktop desenvolvida como **trabalho final da disciplina de Programação Orientada a Objetos (POO)** do **Instituto Federal do Piauí (IFPI)**.
+O **Protocolo: Equatorial** é uma aplicação desktop desenvolvida como **trabalho final da disciplina de Programação Orientada a Objetos (POO)** do **Instituto Federal do Piauí (IFPI) - 2026.2**.
 
 O sistema tem como objetivo simular o **acompanhamento de atendimentos e equipes de campo** de uma empresa fornecedora de energia, permitindo o controle de **clientes**, **agendamentos**, **protocolos**, **técnicos**, **equipes** e **agências**, além do acompanhamento das datas previstas de atendimento.
 
 ⚠️ **Observação importante:**
 Este projeto é **exclusivamente um estudo de caso acadêmico** e **não representa** nem reflete os sistemas, dados ou fluxos reais da empresa Equatorial Energia.
+
+Dupla:
+
+- Giovanna Alves de Oliveira
+- Maria Helena Gomes da Silva
 
 ---
 
@@ -165,7 +170,9 @@ java -jar target/protocolo-equatorial.jar
 
 O projeto inclui **Diagrama de Classes UML**, representando as entidades, relacionamentos e abstrações do sistema.
 
-> 💡 O diagrama foi gerado com **PlantUML**, garantindo clareza e padronização visual.
+> 💡 O diagrama foi gerado com **Mermaid**, garantindo clareza e padronização visual.
+
+![UML - Class Diagram](./screenshots/uml/UML-Diagrama-de-classes.png)
 
 ---
 
