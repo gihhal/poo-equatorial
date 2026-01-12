@@ -10,10 +10,18 @@ import util.exception.BusinessException;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AtendimentoDAOImpl implements AtendimentoDAO {
+
+    private final ProtocoloDAO protocoloDAO; // DAO de protocolos injetado
+
+    public AtendimentoDAOImpl() {
+        this.protocoloDAO = DAOFactory.getProtocoloDAO();
+    }
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
@@ -78,7 +86,6 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public Atendimento buscarPorId(String id) throws BusinessException {
         String sql = "SELECT * FROM atendimento WHERE id = ?";
-
         List<Atendimento> atendimentos = executarConsultaLista(sql, id);
 
         if (atendimentos.isEmpty()) {
@@ -97,7 +104,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public List<Atendimento> listarPorCliente(String idCliente) {
         String sql = "SELECT * FROM atendimento WHERE cliente_id = ?";
-        return executarConsultaLista(sql);
+        return executarConsultaLista(sql, idCliente);
     }
 
     @Override
@@ -119,13 +126,13 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     ) {
 
         String sql = """
-        UPDATE atendimento
-        SET data_inicio = ?,
-            data_prazo = ?,
-            id_equipe = ?,
-            id_protocolo = ?
-        WHERE id = ?
-    """;
+            UPDATE atendimento
+            SET data_inicio = ?,
+                data_prazo = ?,
+                id_equipe = ?,
+                id_protocolo = ?
+            WHERE id = ?
+        """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
 
@@ -200,7 +207,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Atendimento mapearResultadoParaAtendimento(ResultSet rs) throws SQLException {
-        Atendimento a = new Atendimento(
+        return new Atendimento(
                 rs.getString("id"),
                 rs.getString("agencia_id"),
                 rs.getString("tecnico_id"),

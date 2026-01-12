@@ -27,15 +27,15 @@ public class TesteService {
         // teste para exibir os protocolos
         System.out.println("Listar protocolos");
 
-        protoService.listarTodos().forEach(c ->
-                System.out.println(c.getId())
+        protoService.listarTodos().forEach(p ->
+                System.out.println("Protocolo: " + p.getId())
         );
 
         // teste para exibir os atendimentos
         System.out.println("Listar atendimentos");
 
-        atendimService.listarTodos().forEach(c ->
-                System.out.println(c.getId())
+        atendimService.listarTodos().forEach(a ->
+                System.out.println(a.getId())
         );
 
     }
