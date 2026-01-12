@@ -18,9 +18,9 @@ public class EquipeCampoDAOImpl implements EquipeCampoDAO {
     }
 
     @Override
-    public EquipeCampo buscarPorId(int id) {
+    public EquipeCampo buscarPorId(String id) {
         for (EquipeCampo e : equipes) {
-            if (e.getId() == id) {
+            if (e.getId().equals(id)) {
                 return e;
             }
         }
@@ -47,7 +47,7 @@ public class EquipeCampoDAOImpl implements EquipeCampoDAO {
     @Override
     public void deletar(int id) {
         Optional<EquipeCampo> equipeParaRemover = equipes.stream()
-                .filter(e -> e.getId() == id)
+                .filter(e -> e.getId().equals(id))
                 .findFirst();
         if (equipeParaRemover.isPresent()) {
             equipes.remove(equipeParaRemover.get());

@@ -9,7 +9,7 @@ public interface EquipeCampoDAO {
     void criar(EquipeCampo equipe);
 
     // READ
-    EquipeCampo buscarPorId(int id);
+    EquipeCampo buscarPorId(String id);
     List<EquipeCampo> listarTodos();
 
     // UPDATE

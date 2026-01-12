@@ -1,7 +1,7 @@
 package dao.impl;
 
 import dao.AtendimentoDAO;
-import dao.EquipeDAO;
+import dao.EquipeCampoDAO;
 import dao.ProtocoloDAO;
 import factory.DAOFactory;
 import model.*;
@@ -10,25 +10,17 @@ import util.exception.BusinessException;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class AtendimentoDAOImpl implements AtendimentoDAO {
-
-    private final ProtocoloDAO protocoloDAO; // DAO de protocolos injetado
-
-    public AtendimentoDAOImpl() {
-        this.protocoloDAO = DAOFactory.getProtocoloDAO();
-    }
 
     private Connection getConnection() {
         return ConnectionManager.getConnection();
     }
 
     private final ProtocoloDAO protocoloDAO;
-    private final EquipeDAO equipeDAO;
+    private final EquipeCampoDAO equipeDAO;
 
     public AtendimentoDAOImpl() {
         this.protocoloDAO = DAOFactory.getProtocoloDAO();
@@ -67,8 +59,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
                             atendimentoData.getTecnicoId(),
                             atendimentoData.getClienteId(),
                             atendimentoData.getDataInicio(),
-                            atendimentoData.getDataPrazo(),
-                            atendimentoData.getProtocoloId()
+                            atendimentoData.getDataPrazo()
                     );
                 }
             }
@@ -207,16 +198,19 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Atendimento mapearResultadoParaAtendimento(ResultSet rs) throws SQLException {
+        String inicioStr = rs.getString("data_inicio");
+        LocalDate dataInicio = inicioStr != null ? LocalDate.parse(inicioStr) : null;
+
+        String prazoStr = rs.getString("data_inicio");
+        LocalDate dataPrazo = prazoStr != null ? LocalDate.parse(prazoStr) : null;
+
         return new Atendimento(
                 rs.getString("id"),
-                rs.getString("agencia_id"),
-                rs.getString("tecnico_id"),
-                rs.getString("cliente_id"),
-                rs.getDate("data_abertura").toLocalDate(),
-                rs.getDate("data_prazo").toLocalDate(),
-                rs.getString("protocolo_id")
+                rs.getString("id_agencia"),
+                rs.getString("id_tecnico"),
+                rs.getString("id_cliente"),
+                dataInicio,
+                dataPrazo
         );
-
-        return a;
     }
 }

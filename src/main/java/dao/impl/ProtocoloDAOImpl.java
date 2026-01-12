@@ -187,17 +187,24 @@ public class ProtocoloDAOImpl implements ProtocoloDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Protocolo mapearResultadoParaProtocolo(ResultSet rs) throws SQLException {
-        Protocolo p = new Protocolo(
+        String aberturaStr = rs.getString("data_abertura");
+        LocalDate dataAbertura = aberturaStr != null ? LocalDate.parse(aberturaStr) : null;
+
+        String encerramentoStr = rs.getString("data_encerramento");
+        LocalDate dataEncerramento = encerramentoStr != null ? LocalDate.parse(encerramentoStr) : null;
+
+        String previsaoStr = rs.getString("data_prevista");
+        LocalDate dataPrevista = previsaoStr != null ? LocalDate.parse(previsaoStr) : null;
+
+        return new Protocolo(
             rs.getString("id"),
             StatusProtocolo.valueOf(rs.getString("status")),
-            rs.getDate("data_abertura").toLocalDate(),
-            rs.getDate("data_prevista").toLocalDate(),
-            rs.getDate("data_encerramento").toLocalDate(),
-            rs.getString("id_client"),
+            dataAbertura,
+            dataPrevista,
+            dataEncerramento,
+            rs.getString("id_cliente"),
             rs.getString("id_atendimento"),
             rs.getString("id_equipe")
         );
-
-        return p;
     }
 }

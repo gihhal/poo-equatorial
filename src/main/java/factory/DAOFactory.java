@@ -2,18 +2,12 @@ package factory;
 
 // SOLID: Interface segregation
 // implementação dependem de classes abstratas (interfaces)
-import dao.AtendimentoDAO;
-import dao.ClienteDAO;
-import dao.EquipeDAO;
-import dao.ProtocoloDAO;
+import dao.*;
 
 // SOLID: Liskov
 // Substituir a classe derivada por uma implementação da classe
 // sem desestruturar suas funcionalidades
-import dao.impl.AtendimentoDAOImpl;
-import dao.impl.ClienteDAOImpl;
-import dao.impl.EquipeDAOImpl;
-import dao.impl.ProtocoloDAOImpl;
+import dao.impl.*;
 
 // Design Pattern aplicado: Singleton
 // motivo: uma classe que gerencia as implementações
@@ -31,12 +25,10 @@ public class DAOFactory {
     public static AtendimentoDAO getAtendimentoDAO() {
         return new AtendimentoDAOImpl();
     }
-    public static EquipeDAO getEquipeDAO() {
-        return new EquipeDAOImpl();
-    }
 
     public static EquipeCampoDAO getEquipeDAO() {
         return new EquipeCampoDAOImpl();
     }
+
 }
 

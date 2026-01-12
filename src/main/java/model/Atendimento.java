@@ -10,7 +10,6 @@ public class Atendimento {
     private String clienteId;
     private LocalDate dataInicio;
     private LocalDate dataPrazo;
-    private String protocoloId;
 
     // constructor
     public Atendimento(
@@ -19,8 +18,7 @@ public class Atendimento {
             String tecnicoId,
             String clienteId,
             LocalDate dataInicio,
-            LocalDate dataPrazo,
-            String protocoloId
+            LocalDate dataPrazo
     ) {
         this.id = id;
         this.agenciaId = agenciaId;
@@ -28,7 +26,6 @@ public class Atendimento {
         this.clienteId = clienteId;
         this.dataInicio = dataInicio;
         this.dataPrazo = dataPrazo;
-        this.protocoloId = protocoloId;
     }
 
     // getters and setters
@@ -74,13 +71,5 @@ public class Atendimento {
 
     public void setDataPrazo(LocalDate dataPrazo) {
         this.dataPrazo = dataPrazo;
-    }
-
-    public String getProtocoloId() {
-        return protocoloId;
-    }
-
-    public void setProtocoloId(String protocoloId) {
-        this.protocoloId = protocoloId;
     }
 }
