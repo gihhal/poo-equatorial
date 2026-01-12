@@ -1,18 +1,22 @@
 package model;
 
-public abstract class Pessoa {
-    protected String nome;
-    protected String cpf;
-    protected String contato;
+public class ClienteInput {
 
-    public Pessoa(
+    private String nome;
+    private String cpf;
+    private String contato;
+    private String endereco;
+
+    public ClienteInput(
             String nome,
             String cpf,
-            String contato
+            String contato,
+            String endereco
     ) {
         this.nome = nome;
         this.cpf = cpf;
         this.contato = contato;
+        this.endereco = endereco;
     }
 
     public String getNome() {
@@ -37,5 +41,13 @@ public abstract class Pessoa {
 
     public void setContato(String contato) {
         this.contato = contato;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }

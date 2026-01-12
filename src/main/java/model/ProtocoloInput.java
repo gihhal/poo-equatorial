@@ -1,42 +1,35 @@
 package model;
 
+
 import java.time.LocalDate;
 
-public class Protocolo {
-    private String id;
+public class ProtocoloInput {
     private StatusProtocolo status;
     private LocalDate dataAbertura;
     private LocalDate dataPrevista;
-    private LocalDate dataEncerramento;
     private String idCliente;
     private String idAtendimento;
     private String idEquipe;
 
     // constructor
-    public Protocolo(
-            String id,
+    public ProtocoloInput(
             StatusProtocolo status,
             LocalDate dataAbertura,
             LocalDate dataPrevista,
-            LocalDate dataEncerramento,
             String clienteId,
             String atendimentoId,
             String equipeId
-            ) {
-        this.id = id;
+    ) {
+
         this.status = status;
         this.dataAbertura = dataAbertura;
         this.dataPrevista = dataPrevista;
-        this.dataEncerramento = dataEncerramento;
         this.idCliente = clienteId;
         this.idAtendimento = atendimentoId;
         this.idEquipe = equipeId;
     }
 
     // getters and setters
-    public String getId() {
-        return id;
-    }
 
     public StatusProtocolo getStatus() {
         return this.status;
@@ -60,14 +53,6 @@ public class Protocolo {
 
     public void setDataPrevista(LocalDate dataPrevista) {
         this.dataPrevista = dataPrevista;
-    }
-
-    public LocalDate getDataEncerramento() {
-        return dataEncerramento;
-    }
-
-    public void setDataEncerramento(LocalDate dataEncerramento) {
-        this.dataEncerramento = dataEncerramento;
     }
 
     public String getClienteId() {

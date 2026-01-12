@@ -13,7 +13,7 @@ public class ConnectionManager {
         try {
             if (connection == null) {
                 connection = DriverManager.getConnection(
-                        "jdbc:sqlite:energia.db"
+                        "jdbc:sqlite:./energia.db"
                 );
             }
             return connection;

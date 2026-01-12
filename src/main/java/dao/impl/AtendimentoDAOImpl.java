@@ -1,16 +1,13 @@
 package dao.impl;
 
 import dao.AtendimentoDAO;
+import dao.EquipeCampoDAO;
 import dao.ProtocoloDAO;
 import factory.DAOFactory;
-import model.Atendimento;
-import model.EquipeCampo;
-import model.Protocolo;
-import model.StatusProtocolo;
+import model.*;
 import util.ConnectionManager;
 import util.exception.BusinessException;
 
-import java.net.BindException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,28 +19,52 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
         return ConnectionManager.getConnection();
     }
 
+    private final ProtocoloDAO protocoloDAO;
+    private final EquipeCampoDAO equipeDAO;
+
+    public AtendimentoDAOImpl() {
+        this.protocoloDAO = DAOFactory.getProtocoloDAO();
+        this.equipeDAO = DAOFactory.getEquipeDAO();
+    }
+
     // ========================
     // CREATE
     // ========================
     @Override
-    public void abrirAtendimento(Atendimento atendimento) throws BusinessException {
+    public Atendimento abrirAtendimento(AtendimentoInput atendimentoData) throws BusinessException {
         String sql = """
             INSERT INTO atendimento
-            (id, agencia_id, tecnico_id, cliente_id, data_inicio, data_prazo, protocolo_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)        
+            (agencia_id, tecnico_id, cliente_id, data_inicio, data_prazo, protocolo_id)
+            VALUES (?, ?, ?, ?, ?, ?)        
         """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
 
-            ps.setString(1, atendimento.getId());
-            ps.setString(2, atendimento.getAgenciaId());
-            ps.setString(3, atendimento.getTecnicoId());
-            ps.setString(4, atendimento.getClienteId());
-            ps.setDate(5, (Date) atendimento.getDataInicio());
-            ps.setDate(6, (Date) atendimento.getDataPrazo());
-            ps.setString(7, atendimento.getProtocoloId());
+            ps.setString(1, atendimentoData.getAgenciaId());
+            ps.setString(2, atendimentoData.getTecnicoId());
+            ps.setString(3, atendimentoData.getClienteId());
+            ps.setDate(4, java.sql.Date.valueOf(atendimentoData.getDataInicio()));
+            ps.setDate(5, java.sql.Date.valueOf(atendimentoData.getDataPrazo()));
+            ps.setString(6, atendimentoData.getProtocoloId());
 
             ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    String idGerado = rs.getString(1);
+
+                    return new Atendimento(
+                            idGerado,
+                            atendimentoData.getAgenciaId(),
+                            atendimentoData.getTecnicoId(),
+                            atendimentoData.getClienteId(),
+                            atendimentoData.getDataInicio(),
+                            atendimentoData.getDataPrazo()
+                    );
+                }
+            }
+
+            throw new RuntimeException("Falha ao obter ID do protocolo criado.");
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao criar atendimento: ", e);
@@ -56,7 +77,6 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public Atendimento buscarPorId(String id) throws BusinessException {
         String sql = "SELECT * FROM atendimento WHERE id = ?";
-
         List<Atendimento> atendimentos = executarConsultaLista(sql, id);
 
         if (atendimentos.isEmpty()) {
@@ -75,7 +95,7 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     @Override
     public List<Atendimento> listarPorCliente(String idCliente) {
         String sql = "SELECT * FROM atendimento WHERE cliente_id = ?";
-        return executarConsultaLista(sql);
+        return executarConsultaLista(sql, idCliente);
     }
 
     @Override
@@ -88,54 +108,64 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     // UPDATE
     // ========================
     @Override
-    public void agendarAtendimento(
-            int idProtocolo,
-            LocalDate dataPrevista,
-            int idEquipe
-    ) throws BusinessException {
+    public void atualizar(
+            String idAgendamento,
+            LocalDate dataInicio,
+            LocalDate dataPrazo,
+            String equipeId,
+            String protocoloId
+    ) {
 
-        Protocolo protocolo = buscarPorId(idProtocolo);
+        String sql = """
+            UPDATE atendimento
+            SET data_inicio = ?,
+                data_prazo = ?,
+                id_equipe = ?,
+                id_protocolo = ?
+            WHERE id = ?
+        """;
 
-        if (protocolo.getStatus() != StatusProtocolo.ABERTO) {
-            throw new BusinessException("Somente atendimentos ABERTOS podem ser agendados.");
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+
+            // data_inicio
+            if (dataInicio != null) {
+                ps.setDate(1, java.sql.Date.valueOf(dataInicio));
+            } else {
+                ps.setNull(1, java.sql.Types.DATE);
+            }
+
+            // data_prazo
+            if (dataPrazo != null) {
+                ps.setDate(2, java.sql.Date.valueOf(dataPrazo));
+            } else {
+                ps.setNull(2, java.sql.Types.DATE);
+            }
+
+            // equipe
+            if (equipeId != null && !equipeId.isBlank()) {
+                // buscar deve lançar exceção se não existir
+                equipeDAO.buscarPorId(equipeId);
+                ps.setString(3, equipeId);
+            } else {
+                ps.setNull(3, java.sql.Types.VARCHAR);
+            }
+
+            // protocolo
+            if (protocoloId != null && !protocoloId.isBlank()) {
+                // buscar deve lançar exceção se não existir
+                protocoloDAO.buscarPorId(protocoloId);
+                ps.setString(4, protocoloId);
+            } else {
+                ps.setNull(4, java.sql.Types.VARCHAR);
+            }
+
+            ps.setString(5, idAgendamento);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar atendimento", e);
         }
-
-        if (dataPrevista == null || dataPrevista.isBefore(LocalDate.now())) {
-            throw new BusinessException("Data prevista inválida.");
-        }
-
-        // Simulação de busca da equipe (pode virar DAO depois)
-        EquipeCampo equipe = new EquipeCampo(); // placeholder
-        // equipeDAO.buscarPorId(idEquipe);
-
-        protocolo.agendar(dataPrevista, equipe);
-
-        protocoloDAO.atualizar(protocolo);
-    }
-
-    @Override
-    public void atualizarStatus(
-            int idProtocolo,
-            StatusProtocolo novoStatus
-    ) throws BusinessException {
-
-        Protocolo protocolo = buscarPorId(idProtocolo);
-
-        if (novoStatus == null) {
-            throw new BusinessException("Status inválido.");
-        }
-
-        if (protocolo.getStatus() == StatusProtocolo.FINALIZADO) {
-            throw new BusinessException("Atendimento já finalizado.");
-        }
-
-        protocolo.setStatus(novoStatus);
-        protocoloDAO.atualizar(protocolo);
-    }
-
-    @Override
-    public void atualizarEquipe(String idProtocolo, java.util.Date dataPrazo) {
-        throw new BindException("Erro ao atualizar equipe.");
     }
 
     // =========================
@@ -168,16 +198,19 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Atendimento mapearResultadoParaAtendimento(ResultSet rs) throws SQLException {
-        Atendimento a = new Atendimento(
-                rs.getString("id"),
-                rs.getString("agencia_id"),
-                rs.getString("tecnico_id"),
-                rs.getString("cliente_id"),
-                rs.getDate("data_abertura"),
-                rs.getDate("data_prazo"),
-                rs.getString("protocolo_id")
-        );
+        String inicioStr = rs.getString("data_inicio");
+        LocalDate dataInicio = inicioStr != null ? LocalDate.parse(inicioStr) : null;
 
-        return p;
+        String prazoStr = rs.getString("data_inicio");
+        LocalDate dataPrazo = prazoStr != null ? LocalDate.parse(prazoStr) : null;
+
+        return new Atendimento(
+                rs.getString("id"),
+                rs.getString("id_agencia"),
+                rs.getString("id_tecnico"),
+                rs.getString("id_cliente"),
+                dataInicio,
+                dataPrazo
+        );
     }
 }

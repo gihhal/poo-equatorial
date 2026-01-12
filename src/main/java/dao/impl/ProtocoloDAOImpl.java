@@ -3,11 +3,13 @@ package dao.impl;
 import dao.ProtocoloDAO;
 import model.Atendimento;
 import model.Protocolo;
+import model.ProtocoloInput;
 import model.StatusProtocolo;
 import util.ConnectionManager;
 import util.exception.BusinessException;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,27 +23,45 @@ public class ProtocoloDAOImpl implements ProtocoloDAO {
     // CREATE
     // =========================
     @Override
-    public void criar(Protocolo protocolo) {
+    public Protocolo criar(ProtocoloInput protocoloData) {
 
         String sql = """
             INSERT INTO protocolo
-            (data_abertura, data_prevista, status, id_cliente, cpf_cliente, id_tecnico)
+            (data_abertura, data_prevista, status, id_cliente, id_atendimento, id_equipe)
             VALUES (?, ?, ?, ?, ?, ?)
         """;
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-
-            ps.setDate(1, (Date) protocolo.getDataAbertura());
-            ps.setDate(2, (Date) protocolo.getDataPrevista());
-            ps.setString(3, protocolo.getStatus().name());
-            ps.setString(4, protocolo.getClienteId());
-            ps.setString(5, protocolo.getAtendimentoId());
-            ps.setString(6, protocolo.getEquipeId());
+            ps.setDate(1, java.sql.Date.valueOf(protocoloData.getDataAbertura()));
+            ps.setDate(2, java.sql.Date.valueOf(protocoloData.getDataPrevista()));
+            ps.setString(3, protocoloData.getStatus().name());
+            ps.setString(4, protocoloData.getClienteId());
+            ps.setString(5, protocoloData.getAtendimentoId());
+            ps.setString(6, protocoloData.getEquipeId());
 
             ps.executeUpdate();
 
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    String idGerado = rs.getString(1);
+
+                    return new Protocolo(
+                            idGerado,
+                            protocoloData.getStatus(),
+                            protocoloData.getDataAbertura(),
+                            protocoloData.getDataPrevista(),
+                            null,
+                            protocoloData.getClienteId(),
+                            protocoloData.getAtendimentoId(),
+                            protocoloData.getEquipeId()
+                    );
+                }
+            }
+
+            throw new RuntimeException("Falha ao obter ID do protocolo criado.");
+
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao criar protocolo", e);
+            throw new RuntimeException("Erro ao criar protocolo: ", e);
         }
     }
 
@@ -68,7 +88,7 @@ public class ProtocoloDAOImpl implements ProtocoloDAO {
     }
 
     @Override
-    public List<Protocolo> listarPorDia(java.util.Date data) {
+    public List<Protocolo> listarPorDia(LocalDate data) {
         String sql = "SELECT * FROM protocolo WHERE data_prevista = ?";
         return executarConsultaLista(sql, data);
     }
@@ -107,7 +127,7 @@ public class ProtocoloDAOImpl implements ProtocoloDAO {
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
 
-            ps.setDate(1, (Date) protocolo.getDataAbertura());
+            ps.setDate(1, java.sql.Date.valueOf(protocolo.getDataAbertura()));
             ps.setString(2, protocolo.getStatus().name());
             ps.setString(3, protocolo.getEquipeId());
             ps.setString(4, protocolo.getId());
@@ -167,17 +187,24 @@ public class ProtocoloDAOImpl implements ProtocoloDAO {
     // MAPEAMENTO RESULTSET
     // =========================
     private Protocolo mapearResultadoParaProtocolo(ResultSet rs) throws SQLException {
-        Protocolo p = new Protocolo(
+        String aberturaStr = rs.getString("data_abertura");
+        LocalDate dataAbertura = aberturaStr != null ? LocalDate.parse(aberturaStr) : null;
+
+        String encerramentoStr = rs.getString("data_encerramento");
+        LocalDate dataEncerramento = encerramentoStr != null ? LocalDate.parse(encerramentoStr) : null;
+
+        String previsaoStr = rs.getString("data_prevista");
+        LocalDate dataPrevista = previsaoStr != null ? LocalDate.parse(previsaoStr) : null;
+
+        return new Protocolo(
             rs.getString("id"),
             StatusProtocolo.valueOf(rs.getString("status")),
-            rs.getDate("data_abertura"),
-            rs.getDate("data_prevista"),
-            rs.getDate("data_encerramento"),
-            rs.getString("id_client"),
+            dataAbertura,
+            dataPrevista,
+            dataEncerramento,
+            rs.getString("id_cliente"),
             rs.getString("id_atendimento"),
             rs.getString("id_equipe")
         );
-
-        return p;
     }
 }

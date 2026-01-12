@@ -1,42 +1,34 @@
 package dao;
 
 import model.Atendimento;
+import model.AtendimentoInput;
 import model.Protocolo;
 import model.StatusProtocolo;
 import util.exception.BusinessException;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public interface AtendimentoDAO {
 
     // CREATE
-    void abrirAtendimento(Atendimento atendimento) throws BusinessException;
+    public Atendimento abrirAtendimento(AtendimentoInput atendimento) throws BusinessException;
 
     // READ
-    Atendimento buscarPorId(String id) throws BusinessException;
+    public Atendimento buscarPorId(String id) throws BusinessException;
 
-    List<Atendimento> listarTodos();
+    public List<Atendimento> listarTodos();
 
-    List<Atendimento> listarPorCliente(String clienteId);
+    public List<Atendimento> listarPorCliente(String clienteId);
 
-    List<Atendimento> listarPorStatus(StatusProtocolo status);
+    public List<Atendimento> listarPorStatus(StatusProtocolo status);
 
     // UPDATE
-    public void agendarAtendimento(
-            int idProtocolo,
-            LocalDate dataPrevista,
-            int idEquipe
+    public void atualizar(
+            String idAgendamento,
+            LocalDate dataInicio,
+            LocalDate dataPrazo,
+            String equipeId,
+            String protocoloId
     ) throws BusinessException;
-
-    public void atualizarStatus(
-            int idProtocolo,
-            StatusProtocolo novoStatus
-    ) throws BusinessException;
-
-    public void atualizarEquipe(
-            String idProtocolo,
-            Date dataPrazo
-    ) throws  BusinessException;
 }

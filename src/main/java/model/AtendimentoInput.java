@@ -2,35 +2,24 @@ package model;
 
 import java.time.LocalDate;
 
-public class Atendimento {
-
-    private String id;
+public class AtendimentoInput {
     private String agenciaId;
     private String tecnicoId;
     private String clienteId;
     private LocalDate dataInicio;
     private LocalDate dataPrazo;
+    private String protocoloId;
 
-    // constructor
-    public Atendimento(
-            String id,
-            String agenciaId,
-            String tecnicoId,
-            String clienteId,
+    public AtendimentoInput(
             LocalDate dataInicio,
-            LocalDate dataPrazo
+            String clienteId,
+            String tecnicoId,
+            String agenciaId
     ) {
-        this.id = id;
-        this.agenciaId = agenciaId;
-        this.tecnicoId = tecnicoId;
-        this.clienteId = clienteId;
         this.dataInicio = dataInicio;
-        this.dataPrazo = dataPrazo;
-    }
-
-    // getters and setters
-    public String getId() {
-        return id;
+        this.clienteId = clienteId;
+        this.tecnicoId = tecnicoId;
+        this.agenciaId = agenciaId;
     }
 
     public String getAgenciaId() {
@@ -71,5 +60,13 @@ public class Atendimento {
 
     public void setDataPrazo(LocalDate dataPrazo) {
         this.dataPrazo = dataPrazo;
+    }
+
+    public String getProtocoloId() {
+        return protocoloId;
+    }
+
+    public void setProtocoloId(String protocoloId) {
+        this.protocoloId = protocoloId;
     }
 }
