@@ -4,6 +4,7 @@ package factory;
 // implementação dependem de classes abstratas (interfaces)
 import dao.AtendimentoDAO;
 import dao.ClienteDAO;
+import dao.EquipeDAO;
 import dao.ProtocoloDAO;
 
 // SOLID: Liskov
@@ -11,6 +12,7 @@ import dao.ProtocoloDAO;
 // sem desestruturar suas funcionalidades
 import dao.impl.AtendimentoDAOImpl;
 import dao.impl.ClienteDAOImpl;
+import dao.impl.EquipeDAOImpl;
 import dao.impl.ProtocoloDAOImpl;
 
 // Design Pattern aplicado: Singleton
@@ -29,6 +31,9 @@ public class DAOFactory {
     }
     public static AtendimentoDAO getAtendimentoDAO() {
         return new AtendimentoDAOImpl();
+    }
+    public static EquipeDAO getEquipeDAO() {
+        return new EquipeDAOImpl();
     }
 
 }

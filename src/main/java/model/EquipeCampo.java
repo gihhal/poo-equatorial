@@ -2,7 +2,7 @@ package model;
 
 public class EquipeCampo {
 
-    private int id;
+    private String id;
     private String nomeEquipe;
     private String baseOperacional;
 
@@ -12,5 +12,9 @@ public class EquipeCampo {
 
     public String getBaseOperacional() {
         return baseOperacional;
+    }
+
+    public String getId() {
+        return id;
     }
 }

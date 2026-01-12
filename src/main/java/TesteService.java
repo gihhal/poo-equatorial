@@ -1,8 +1,9 @@
 import dao.AtendimentoDAO;
 import dao.ClienteDAO;
 import dao.ProtocoloDAO;
-import dao.impl.ClienteDAOImpl;
 import factory.DAOFactory;
+
+import model.ClienteInput;
 
 public class TesteService {
 
@@ -17,7 +18,6 @@ public class TesteService {
         ProtocoloDAO protoService = factory.getProtocoloDAO();
         AtendimentoDAO atendimService = factory.getAtendimentoDAO();
 
-        // teste para exibir os clientes
         System.out.println("Listar clientes");
 
         cliService.listarTodos().forEach(c ->
@@ -28,14 +28,14 @@ public class TesteService {
         System.out.println("Listar protocolos");
 
         protoService.listarTodos().forEach(c ->
-                System.out.println(c.getNome())
+                System.out.println(c.getId())
         );
 
         // teste para exibir os atendimentos
         System.out.println("Listar atendimentos");
 
         atendimService.listarTodos().forEach(c ->
-                System.out.println(c.getNome())
+                System.out.println(c.getId())
         );
 
     }

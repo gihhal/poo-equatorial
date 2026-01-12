@@ -2,21 +2,30 @@ package model;
 
 public class Cliente extends Pessoa {
 
-    private int id;
+    private String id;
     private String endereco;
 
-    public Cliente(String nome, String cpf, String contato, String endereco) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.contato = contato;
+    public Cliente(
+            String id,
+            String nome,
+            String cpf,
+            String contato,
+            String endereco
+    ) {
+        super(nome, cpf, contato);
+        this.id = id;
         this.endereco = endereco;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
     public String getEndereco() {
         return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }
