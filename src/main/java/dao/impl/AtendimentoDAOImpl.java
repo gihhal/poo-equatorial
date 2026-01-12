@@ -2,6 +2,7 @@ package dao.impl;
 
 import dao.AtendimentoDAO;
 import dao.ProtocoloDAO;
+import factory.DAOFactory;
 import model.Atendimento;
 import model.EquipeCampo;
 import model.Protocolo;
@@ -20,8 +21,8 @@ public class AtendimentoDAOImpl implements AtendimentoDAO {
 
     private final ProtocoloDAO protocoloDAO; // DAO de protocolos injetado
 
-    public AtendimentoDAOImpl(ProtocoloDAO protocoloDAO) {
-        this.protocoloDAO = protocoloDAO;
+    public AtendimentoDAOImpl() {
+        this.protocoloDAO = DAOFactory.getProtocoloDAO();
     }
 
     private Connection getConnection() {
